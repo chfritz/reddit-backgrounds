@@ -1,14 +1,14 @@
 {
   "name": "reddit-backgrounds",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.0.1",
+  "description": "Simple script that fetches a random, high-rated, lanscape-ish image from a specified reddit and sets it as background in gnome",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Christian Fritz",
+  "license": "MIT",
   "dependencies": {
     "node-fetch": "^2.6.6"
   }
