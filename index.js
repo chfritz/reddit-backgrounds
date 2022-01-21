@@ -4,6 +4,7 @@ const fetch = require('node-fetch');
 const fs = require('fs');
 const https = require('https');
 const execSync = require('child_process').execSync;
+const Jimp = require("jimp");
 
 SUBREDDIT='earthporn';
 // URL=`https://www.reddit.com/r/${SUBREDDIT}/hot/.json?raw_json=1&t=`;
@@ -55,12 +56,42 @@ const run = async () => {
   console.log(chosen);
 
   const file = fs.createWriteStream(FILE);
+  const annotatedFile = `${FILE}_text.jpg`;
   const request = https.get(chosen.image, response => {
     response.pipe(file);
-    execSync(`gsettings set org.gnome.desktop.background picture-uri "file://${FILE}"`);
-    chosen.lastUsed = new Date();
-    history[chosen.title] = chosen;
-    fs.writeFileSync(HISTORY_FILE, JSON.stringify(history));
+    // execSync(`convert -size 1000x140 xc:none -gravity center \
+    //         -pointsize 60 \
+    //         -stroke black -strokewidth 2 -annotate 0 '${chosen.title}' \
+    //         -background black -shadow 1000x30+0+0 +repage \
+    //         -stroke none -fill white -annotate 0 '${chosen.title}' \
+    //         ${FILE} +swap -gravity south -geometry +0-3 \
+    //         -composite ${annotatedFile}`);
+    // execSync(`gsettings set org.gnome.desktop.background picture-uri "file://${annotatedFile}"`);
+    file.on('finish', () =>
+      addCaption(FILE, annotatedFile, chosen.title, (err) => {
+        if (err) process.exit(3);
+        execSync(`gsettings set org.gnome.desktop.background picture-uri "file://${annotatedFile}"`);
+        chosen.lastUsed = new Date();
+        history[chosen.title] = chosen;
+        fs.writeFileSync(HISTORY_FILE, JSON.stringify(history));
+      })
+    );
+  });
+};
+
+/** add a caption to the image */
+const addCaption = (fileName, annotatedFile, caption, done) => {
+  Jimp.read(fileName).then(function (image) {
+    loadedImage = image;
+    return Jimp.loadFont(Jimp.FONT_SANS_32_WHITE);
+  }).then(function (font) {
+    loadedImage
+      .print(font, 80, loadedImage.bitmap.height - 100, caption)
+      .write(annotatedFile);
+    done(null);
+  }).catch(function (err) {
+    console.error(err);
+    done(err);
   });
 };
 
