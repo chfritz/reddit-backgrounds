@@ -67,15 +67,16 @@ const run = async () => {
     //         ${FILE} +swap -gravity south -geometry +0-3 \
     //         -composite ${annotatedFile}`);
     // execSync(`gsettings set org.gnome.desktop.background picture-uri "file://${annotatedFile}"`);
-    file.on('finish', () =>
-      addCaption(FILE, annotatedFile, chosen.title, (err) => {
+    file.on('finish', () => {
+      const desc = chosen.title.match(/^[^\[]*/)[0];
+      addCaption(FILE, annotatedFile, desc, (err) => {
         if (err) process.exit(3);
         execSync(`gsettings set org.gnome.desktop.background picture-uri "file://${annotatedFile}"`);
         chosen.lastUsed = new Date();
         history[chosen.title] = chosen;
         fs.writeFileSync(HISTORY_FILE, JSON.stringify(history));
       })
-    );
+    });
   });
 };
 
