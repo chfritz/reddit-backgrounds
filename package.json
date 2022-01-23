@@ -1,6 +1,6 @@
 {
   "name": "reddit-backgrounds",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Simple script that fetches a random, high-rated, lanscape-ish image from a specified reddit and sets it as background in gnome",
   "main": "index.js",
   "scripts": {
@@ -12,5 +12,8 @@
   "dependencies": {
     "jimp": "^0.16.1",
     "node-fetch": "^2.6.6"
+  },
+  "bin": {
+    "gnome-reddit-background": "./index.js"
   }
 }
