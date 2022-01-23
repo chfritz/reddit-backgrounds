@@ -6,8 +6,7 @@ const https = require('https');
 const execSync = require('child_process').execSync;
 const Jimp = require("jimp");
 
-SUBREDDIT='earthporn';
-// URL=`https://www.reddit.com/r/${SUBREDDIT}/hot/.json?raw_json=1&t=`;
+SUBREDDIT=process.argv[2] || 'earthporn';
 URL=`https://www.reddit.com/r/${SUBREDDIT}/top/.json?raw_json=1&t=day`;
 FILE='/tmp/reddit-background.jpg'
 
