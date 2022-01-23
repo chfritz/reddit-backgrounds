@@ -8,7 +8,16 @@ Inspired by [styli.sh](https://github.com/thevinter/styli.sh). What I was missin
 
 The script now also adds the description of the image as a caption onto the image itself.
 
+## Installation:
+```
+sudo npm install -g reddit-backgrounds
+```
+
 ## Usage:
 ```
-node index.js
+gnome-reddit-background
+```
+To add a cron-job that replaces your background every hour, run `crontab -e` and add:
+```
+0 * * * * gnome-reddit-background
 ```
