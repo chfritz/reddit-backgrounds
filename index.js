@@ -67,8 +67,13 @@ const run = async () => {
     //         -composite ${annotatedFile}`);
     // execSync(`gsettings set org.gnome.desktop.background picture-uri "file://${annotatedFile}"`);
     file.on('finish', () => {
+      // make it 4k landscape:
+      const scaledFile = `${FILE}_4k.jpg`;
+      const stdout = execSync(`./image_to_4k.sh "${FILE}" "${scaledFile}"`).toString();
+      console.log('output from scaling:', stdout);
+
       const desc = chosen.title.match(/^[^\[]*/)[0];
-      addCaption(FILE, annotatedFile, desc, (err) => {
+      addCaption(scaledFile, annotatedFile, desc, (err) => {
         if (err) process.exit(3);
         execSync(`gsettings set org.gnome.desktop.background picture-uri "file://${annotatedFile}"`);
         chosen.lastUsed = new Date();
