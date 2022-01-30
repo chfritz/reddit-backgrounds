@@ -69,7 +69,7 @@ const run = async () => {
     file.on('finish', () => {
       // make it 4k landscape:
       const scaledFile = `${FILE}_4k.jpg`;
-      const stdout = execSync(`./image_to_4k.sh "${FILE}" "${scaledFile}"`).toString();
+      const stdout = execSync(`${__dirname}/image_to_4k.sh "${FILE}" "${scaledFile}"`).toString();
       console.log('output from scaling:', stdout);
 
       const desc = chosen.title.match(/^[^\[]*/)[0];

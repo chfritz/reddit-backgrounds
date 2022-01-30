@@ -9,6 +9,11 @@ Inspired by [styli.sh](https://github.com/thevinter/styli.sh). What I was missin
 The script now also adds the description of the image as a caption onto the image itself.
 
 ## Installation:
+Install ImageMagick, e.g., on Ubuntu using
+```
+sudo apt install imagemagick
+```
+Then:
 ```
 sudo npm install -g reddit-backgrounds
 ```
