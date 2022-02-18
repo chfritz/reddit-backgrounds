@@ -10,8 +10,15 @@ SUBREDDIT=process.argv[2] || 'earthporn';
 URL=`https://www.reddit.com/r/${SUBREDDIT}/top/.json?raw_json=1&t=day`;
 FILE='/tmp/reddit-background.jpg'
 
-HISTORY_FILE=`${process.env.HOME}/.local/share/reddit-backgrounds/history.json`
-const history = JSON.parse(fs.readFileSync(HISTORY_FILE).toString());
+DIR=`${process.env.HOME}/.local/share/reddit-backgrounds/`;
+HISTORY_FILE=`${DIR}/history.json`
+fs.mkdirSync(DIR, {recursive: true});
+let history;
+try {
+  history = JSON.parse(fs.readFileSync(HISTORY_FILE).toString());
+} catch (e) {
+  history = {};
+}
 
 /** calculate probability weight to give to picking an image */
 const weighting = ({title, ups, downs, width, height}) =>
