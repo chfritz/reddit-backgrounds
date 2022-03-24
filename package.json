@@ -15,5 +15,9 @@
   },
   "bin": {
     "gnome-reddit-background": "./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github:chfritz/reddit-backgrounds"
   }
 }
