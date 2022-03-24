@@ -55,7 +55,9 @@ const run = async () => {
   console.log(chosen);
 
   const file = fs.createWriteStream(FILE);
-  const annotatedFile = `${FILE}_text.jpg`;
+  // use a new filename each time as not to crash gnome-shell when overwriting
+  // current background image
+  const annotatedFile = `${FILE}_text-${(new Date()).toISOString()}.jpg`;
   const request = https.get(chosen.image, response => {
     response.pipe(file);
     // execSync(`convert -size 1000x140 xc:none -gravity center \
@@ -74,12 +76,19 @@ const run = async () => {
 
       const desc = chosen.title.match(/^[^\[]*/)[0];
       addCaption(scaledFile, annotatedFile, desc, (err) => {
+        console.log('added caption');
         if (err) process.exit(3);
-        execSync(`gsettings set org.gnome.desktop.background picture-uri "file://${annotatedFile}"`);
+        const output =
+          execSync(`${__dirname}/set_gnome_wallpaper.sh "${annotatedFile}"`);
+        console.log('set_gnome_wallpaper output:', output.toString());
         chosen.lastUsed = new Date();
         history[chosen.title] = chosen;
         fs.writeFileSync(HISTORY_FILE, JSON.stringify(history));
-      })
+
+        // so that our "collection" script can pick it up if needed
+        const copy = `${FILE}_text.jpg`;
+        fs.copyFile(annotatedFile, copy, console.log);
+      });
     });
   });
 };
@@ -90,10 +99,10 @@ const addCaption = (fileName, annotatedFile, caption, done) => {
     loadedImage = image;
     return Jimp.loadFont(Jimp.FONT_SANS_32_WHITE);
   }).then(function (font) {
+    console.log('Jimp loaded image');
     loadedImage
       .print(font, 80, loadedImage.bitmap.height - 100, caption)
-      .write(annotatedFile);
-    done(null);
+      .write(annotatedFile, () => done(null));
   }).catch(function (err) {
     console.error(err);
     done(err);
