@@ -4,7 +4,6 @@ const fetch = require('node-fetch');
 const fs = require('fs');
 const https = require('https');
 const execSync = require('child_process').execSync;
-const Jimp = require("jimp");
 
 SUBREDDIT=process.argv[2] || 'earthporn';
 URL=`https://www.reddit.com/r/${SUBREDDIT}/top/.json?raw_json=1&t=day`;
@@ -32,9 +31,6 @@ const weighting = ({title, ups, downs, width, height}) =>
 const run = async () => {
   const response = await fetch(URL);
   const body = await response.json();
-  // for testing:
-  // const response = fs.readFileSync('test.json');
-  // const body = JSON.parse(response.toString());
 
   let weightSum = 0;
   const images = body.data.children.map(({data}) => {
@@ -67,52 +63,24 @@ const run = async () => {
   const annotatedFile = `${FILE}_text-${(new Date()).toISOString()}.jpg`;
   const request = https.get(chosen.image, response => {
     response.pipe(file);
-    // execSync(`convert -size 1000x140 xc:none -gravity center \
-    //         -pointsize 60 \
-    //         -stroke black -strokewidth 2 -annotate 0 '${chosen.title}' \
-    //         -background black -shadow 1000x30+0+0 +repage \
-    //         -stroke none -fill white -annotate 0 '${chosen.title}' \
-    //         ${FILE} +swap -gravity south -geometry +0-3 \
-    //         -composite ${annotatedFile}`);
-    // execSync(`gsettings set org.gnome.desktop.background picture-uri "file://${annotatedFile}"`);
     file.on('finish', () => {
-      // make it 4k landscape:
-      const scaledFile = `${FILE}_4k.jpg`;
-      const stdout = execSync(`${__dirname}/image_to_4k.sh "${FILE}" "${scaledFile}"`).toString();
+      const desc = chosen.title.match(/^[^\[]*/)[0];
+      // extend to 4k and add text
+      const stdout = execSync(`${__dirname}/image_to_4k.sh "${FILE}" "${annotatedFile}" "${desc}"`).toString();
       console.log('output from scaling:', stdout);
 
-      const desc = chosen.title.match(/^[^\[]*/)[0];
-      addCaption(scaledFile, annotatedFile, desc, (err) => {
-        console.log('added caption');
-        if (err) process.exit(3);
-        const output =
-          execSync(`${__dirname}/set_gnome_wallpaper.sh "${annotatedFile}"`);
-        console.log('set_gnome_wallpaper output:', output.toString());
-        chosen.lastUsed = new Date();
-        history[chosen.title] = chosen;
-        fs.writeFileSync(HISTORY_FILE, JSON.stringify(history));
+      const output =
+        execSync(`${__dirname}/set_gnome_wallpaper.sh "${annotatedFile}"`);
+      console.log('set_gnome_wallpaper output:', output.toString());
 
-        // so that our "collection" script can pick it up if needed
-        const copy = `${FILE}_text.jpg`;
-        fs.copyFile(annotatedFile, copy, console.log);
-      });
+      chosen.lastUsed = new Date();
+      history[chosen.title] = chosen;
+      fs.writeFileSync(HISTORY_FILE, JSON.stringify(history));
+
+      // so that our "collection" script can pick it up if needed
+      const copy = `${FILE}_text.jpg`;
+      fs.copyFile(annotatedFile, copy, console.log);
     });
-  });
-};
-
-/** add a caption to the image */
-const addCaption = (fileName, annotatedFile, caption, done) => {
-  Jimp.read(fileName).then(function (image) {
-    loadedImage = image;
-    return Jimp.loadFont(Jimp.FONT_SANS_32_WHITE);
-  }).then(function (font) {
-    console.log('Jimp loaded image');
-    loadedImage
-      .print(font, 80, loadedImage.bitmap.height - 100, caption)
-      .write(annotatedFile, () => done(null));
-  }).catch(function (err) {
-    console.error(err);
-    done(err);
   });
 };
 
