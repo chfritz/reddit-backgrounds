@@ -1,6 +1,6 @@
 {
   "name": "reddit-backgrounds",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Simple script that fetches a random, high-rated, lanscape-ish image from a specified reddit and sets it as background in gnome",
   "main": "index.js",
   "scripts": {
