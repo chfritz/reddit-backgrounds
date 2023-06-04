@@ -33,7 +33,9 @@ const run = async () => {
   const body = await response.json();
 
   let weightSum = 0;
-  const images = body.data.children.map(({data}) => {
+  const images = [];
+  body.data.children.map(({data}) => {
+    if (!data.preview) return; // not an image
     const image = {
       title: data.title,
       image: data.preview.images[0].source.url,
@@ -44,7 +46,7 @@ const run = async () => {
     };
     image.weight = weighting(image);
     weightSum += image.weight;
-    return image;
+    images.push(image);
   });
 
   // now randomly pick from images, weighted by their probability weight
