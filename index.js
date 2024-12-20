@@ -7,7 +7,7 @@ const execSync = require('child_process').execSync;
 
 SUBREDDIT=process.argv[2] || 'earthporn';
 URL=`https://www.reddit.com/r/${SUBREDDIT}/top/.json?raw_json=1&t=day`;
-FILE='/tmp/reddit-background.jpg'
+FILE=`/tmp/reddit-background.jpg`;
 
 DIR=`${process.env.HOME}/.local/share/reddit-backgrounds/`;
 HISTORY_FILE=`${DIR}/history.json`
@@ -24,7 +24,7 @@ const weighting = ({title, ups, downs, width, height}) =>
   width < height // don't want any portrait shaped ones
     || history[title] // or repeats
     || width < 1200 // or low res
-  ? 0 :
+  ? 0.0001 :
   (ups/(downs+1))/10 + // want those with high up-ratio
     (width/height)*30; // and as wide as possible
 
